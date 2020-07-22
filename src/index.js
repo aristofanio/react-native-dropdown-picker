@@ -41,6 +41,16 @@ class DropDownPicker extends React.Component {
             }
         }
 
+        
+        // Safe-nullable choise
+        // - avoid error caused in line state.choise (label from undefined).
+        // - origin: component created with items = [].
+        //
+        // author: @aristofânio
+        if (!choise) {
+          choice = this.null();
+        }
+
         this.state = {
             choice: props.multiple ? items : {
                 label: choice.label,
@@ -59,12 +69,18 @@ class DropDownPicker extends React.Component {
 
     static getDerivedStateFromProps(props, state) {
         // Change default value (! multiple)
+        const nullableItem = props.items.find(item => item.value === props.defaultValue);
+        const defaultItem = nullableItem ||  {
+            label: null,
+            value: null,
+            icon: () => {}
+        };
         if (! state.props.multiple && props.defaultValue !== state.props.defaultValue) {
             const { label, value, icon } = props.defaultValue === null ? {
                 label: null,
                 value: null,
                 icon: () => {}
-            } : props.items.find(item => item.value === props.defaultValue);
+            } : defaultItem;
             return {
                 choice: {
                     label, value, icon
